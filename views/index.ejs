@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Figma to Yandex.Cloud</title>
+	<link rel="stylesheet" href="/styles/styles.css">
+</head>
+
+<body>
+	<h1>Figma to Yandex.Cloud</h1>
+	<div class="filters">
+		<label for="folder-select">Выбери компонент:</label>
+		<select id="folder-select">
+			<option value="">Все компоненты</option>
+		</select>
+		<button id="update-button">Обновить изображения</button>
+	</div>
+
+	<div id="image-groups"></div>
+
+	<script>
+		document.getElementById('update-button').onclick = function () {
+			const selectedFolder = document.getElementById('folder-select').value;
+			fetch('/update-image', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ folder: selectedFolder })
+			})
+				.then(response => response.text())
+				.then(data => alert(data))
+				.catch(error => console.error('Ошибка:', error));
+		};
+
+		// Функция для загрузки списка папок и инициализации селекта
+		function loadFolders() {
+			fetch('/folders')
+				.then(response => response.json())
+				.then(folders => {
+					const folderSelect = document.getElementById('folder-select');
+					folders.forEach(folder => {
+						const option = document.createElement('option');
+						option.value = folder;
+						option.text = folder;
+						folderSelect.add(option);
+					});
+				})
+				.catch(error => console.error('Ошибка при загрузке списка папок:', error));
+		}
+
+		// Функция для загрузки изображений
+		function loadImages(folder = '') {
+			fetch('/images?folder=' + encodeURIComponent(folder))
+				.then(response => response.json())
+				.then(groups => {
+					const imageGroupsDiv = document.getElementById('image-groups');
+					imageGroupsDiv.innerHTML = '';
+
+					for (const group in groups) {
+						if (folder === '' || folder === group) {
+							const folderDiv = document.createElement('div');
+							const folderTitle = document.createElement('h2');
+							folderTitle.innerText = group;
+							folderDiv.appendChild(folderTitle);
+
+							groups[group].forEach(url => {
+								const img = document.createElement('img');
+								img.src = url;
+								img.style.maxWidth = '200px';
+								img.style.maxHeight = '200px';
+								img.style.margin = '10px';
+								folderDiv.appendChild(img);
+							});
+
+							imageGroupsDiv.appendChild(folderDiv);
+						}
+					}
+				})
+				.catch(error => console.error('Ошибка при загрузке изображений:', error));
+		}
+
+		// Обработчик изменения выбора папки
+		document.getElementById('folder-select').onchange = function () {
+			const selectedFolder = this.value;
+			loadImages(selectedFolder);
+		};
+
+		// Инициализация страницы
+		loadFolders();  // Загружаем список папок в селект
+		loadImages();   // Загружаем все изображения по умолчанию
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,24 @@
+body {
+	font-family: "Roboto", sans-serif;
+	margin: 0;
+	padding: 0;
+}
+
+h1 {
+	font-size: 40px;
+	padding: 0;
+	margin: 0;
+	margin-bottom: 16px;
+}
+
+h2 {
+	font-size: 24px;
+	margin: 0;
+	padding: 0;
+}
+
+.filters {
+	padding: 12px 20px;
+	background-color: #f4f3f3;
+	border-radius: 16px;
+}
